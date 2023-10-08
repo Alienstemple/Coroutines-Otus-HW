@@ -4,14 +4,11 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import otus.homework.coroutines.Cat
-import otus.homework.coroutines.data.CatFactsService
 import otus.homework.coroutines.CrashMonitor
-import otus.homework.coroutines.Fact
-import otus.homework.coroutines.Image
+import otus.homework.coroutines.data.CatFactsService
 import otus.homework.coroutines.data.CatImagesService
 import otus.homework.coroutines.presentation.ICatsView
 
@@ -26,16 +23,17 @@ class CatsPresenter(
     fun onInitComplete() {
         presenterScope.launch {
             try {
-//                    throw java.net.SocketTimeoutException()
-                val fact: Fact = withContext(Dispatchers.IO) {
+                val factJob = async(Dispatchers.IO) {
                     CatFactsService.getCatFact()
                 }
-                val image: Image = withContext(Dispatchers.IO) {
+                val imageJob = async(Dispatchers.IO) {
                     CatImagesService.getCatImage()[0]  // TODO wrapper
                 }
-                Log.d("TAG", "Fact is ${fact.fact}, image is ${image.url}")
-                _catsView?.populate(Cat(fact.fact, image.url))
+                val catResult = Cat(factJob.await().fact, imageJob.await().url)
+                Log.d("TAG", "Fact is ${catResult.fact}, image is ${catResult.imageUrl}")
+                _catsView?.populate(catResult)
             } catch (sockExcept: java.net.SocketTimeoutException) {
+                Log.d("TAG", "SockExcept")
                 _catsView?.showErrorToast("Не удалось получить ответ от сервера")
             } catch (e: Exception) {
                 _catsView?.showErrorToast("${e.message}")
@@ -54,6 +52,6 @@ class CatsPresenter(
     }
 
     fun cancelCoroutine() {
-        presenterScope.coroutineContext.job.cancel()
+        presenterScope.cancel()   // cancel job + all children
     }
 }
