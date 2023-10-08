@@ -20,9 +20,9 @@ class CatsPresenter(
         val presenterScope = CoroutineScope(Dispatchers.IO + CoroutineName("CatsCoroutine"))
         presenterScope.launch {
             val fact = catsService.getCatFact()
-            val newFact = Fact(createdAt = "", deleted = false, id = "myCustomId", text = "myCustom", source = "", used = false, type = "", user = "", updatedAt = "")
+            Log.d("TAG", "Fact is $fact")
             withContext(Dispatchers.Main) {
-                _catsView?.populate(newFact)
+                _catsView?.populate(fact)
             }
 
         }
