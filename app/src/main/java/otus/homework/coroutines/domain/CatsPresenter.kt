@@ -3,9 +3,11 @@ package otus.homework.coroutines.domain
 import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import otus.homework.coroutines.Cat
 import otus.homework.coroutines.data.CatFactsService
 import otus.homework.coroutines.CrashMonitor
 import otus.homework.coroutines.Fact
@@ -32,7 +34,7 @@ class CatsPresenter(
                     CatImagesService.getCatImage()[0]  // TODO wrapper
                 }
                 Log.d("TAG", "Fact is ${fact.fact}, image is ${image.url}")
-                _catsView?.populate(fact)
+                _catsView?.populate(Cat(fact.fact, image.url))
             } catch (sockExcept: java.net.SocketTimeoutException) {
                 _catsView?.showErrorToast("Не удалось получить ответ от сервера")
             } catch (e: Exception) {
