@@ -45,4 +45,8 @@ class CatsPresenter(
     fun detachView() {
         _catsView = null
     }
+
+    fun cancelCoroutine() {
+        presenterScope.coroutineContext.job.cancel()
+    }
 }

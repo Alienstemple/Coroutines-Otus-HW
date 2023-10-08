@@ -2,6 +2,7 @@ package otus.homework.coroutines
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         if (isFinishing) {
             catsPresenter.detachView()
         }
+        catsPresenter.cancelCoroutine()
         super.onStop()
     }
 }
