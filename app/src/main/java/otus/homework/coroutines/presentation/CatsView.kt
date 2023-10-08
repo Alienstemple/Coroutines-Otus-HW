@@ -1,4 +1,4 @@
-package otus.homework.coroutines
+package otus.homework.coroutines.presentation
 
 import android.content.Context
 import android.util.AttributeSet
@@ -6,6 +6,9 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
+import otus.homework.coroutines.domain.CatsPresenter
+import otus.homework.coroutines.Fact
+import otus.homework.coroutines.R
 
 class CatsView @JvmOverloads constructor(
     context: Context,
@@ -13,7 +16,7 @@ class CatsView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), ICatsView {
 
-    var presenter :CatsPresenter? = null
+    var presenter : CatsPresenter? = null
 
     override fun onFinishInflate() {
         super.onFinishInflate()
