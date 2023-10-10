@@ -7,7 +7,7 @@ object CrashMonitor {
     /**
      * Pretend this is Crashlytics/AppCenter
      */
-    fun trackWarning() {
-        Log.d("TAG", "Crash logged")
+    fun trackWarning(warningMessage: String) {
+        Log.d("TAG", "Crash logged: $warningMessage")
     }
 }

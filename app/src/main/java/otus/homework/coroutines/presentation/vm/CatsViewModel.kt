@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
@@ -22,12 +22,16 @@ class CatsViewModel(
 ) : ViewModel() {
 
     private val _cat = MutableLiveData<Cat>()
+
+    private val exceptionHandler = CoroutineExceptionHandler { _, e ->
+        CrashMonitor.trackWarning("${e.message}")
+    }
     val cat: LiveData<Cat>
         get() = _cat
 
     fun getCat() {
-        viewModelScope.launch {
-            try {
+
+        viewModelScope.launch(exceptionHandler) {
                 val factJob = async(Dispatchers.IO) {
                     CatFactsService.getCatFact()
                 }
@@ -37,12 +41,6 @@ class CatsViewModel(
                 val catResult = Cat(factJob.await().fact, imageJob.await().url)
                 Log.d("TAG", "Fact is ${catResult.fact}, image is ${catResult.imageUrl}")
                 _cat.value = catResult
-            } catch (sockExcept: java.net.SocketTimeoutException) {
-                Log.d("TAG", "SockExcept")
-            } catch (e: Exception) {
-                Log.d("TAG", "${e.message}")
-                CrashMonitor.trackWarning()
-            }
         }
     }
 
