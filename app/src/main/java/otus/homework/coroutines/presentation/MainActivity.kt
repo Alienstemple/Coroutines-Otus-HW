@@ -12,6 +12,7 @@ import com.squareup.picasso.Picasso
 import otus.homework.coroutines.di.DiContainer
 import otus.homework.coroutines.R
 import otus.homework.coroutines.models.Cat
+import otus.homework.coroutines.models.Result
 import otus.homework.coroutines.presentation.vm.CatsViewModel
 import otus.homework.coroutines.presentation.vm.CatsViewModelFactory
 
@@ -35,10 +36,19 @@ class MainActivity : AppCompatActivity() {
             catsViewModel.getCat()
         }
 
-        val catObserver = Observer<Cat> { newCat ->
-           view.populate(newCat)
+        val catObserver = Observer<Result<Cat>> { catResult ->
+            when(catResult) {
+                is Result.Success -> view.populate(catResult.data!!)
+                is Result.Error -> view.showErrorToast(catResult.error!!)
+            }
+
         }
         catsViewModel.cat.observe(this, catObserver)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        catsViewModel.getCat()
     }
 
     override fun onStop() {

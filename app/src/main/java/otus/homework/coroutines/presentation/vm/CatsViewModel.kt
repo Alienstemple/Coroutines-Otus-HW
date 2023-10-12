@@ -7,26 +7,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import otus.homework.coroutines.data.CatFactsService
 import otus.homework.coroutines.data.CatImagesService
 import otus.homework.coroutines.domain.CrashMonitor
 import otus.homework.coroutines.models.Cat
+import otus.homework.coroutines.models.Result
 
 class CatsViewModel(
     private val CatFactsService: CatFactsService,
     private val CatImagesService: CatImagesService
 ) : ViewModel() {
 
-    private val _cat = MutableLiveData<Cat>()
+    private val _cat = MutableLiveData<Result<Cat>>()
 
     private val exceptionHandler = CoroutineExceptionHandler { _, e ->
         CrashMonitor.trackWarning("${e.message}")
+        _cat.value = Result.Error("${e.message}")
     }
-    val cat: LiveData<Cat>
+    val cat: LiveData<Result<Cat>>
         get() = _cat
 
     fun getCat() {
@@ -36,11 +34,11 @@ class CatsViewModel(
                     CatFactsService.getCatFact()
                 }
                 val imageJob = async(Dispatchers.IO) {
-                    CatImagesService.getCatImage()[0]  // TODO wrapper
+                    CatImagesService.getCatImage()[0]
                 }
-                val catResult = Cat(factJob.await().fact, imageJob.await().url)
-                Log.d("TAG", "Fact is ${catResult.fact}, image is ${catResult.imageUrl}")
-                _cat.value = catResult
+                val catResponse = Cat(factJob.await().fact, imageJob.await().url)
+                Log.d("TAG", "Fact is ${catResponse.fact}, image is ${catResponse.imageUrl}")
+                _cat.value = Result.Success(catResponse)
         }
     }
 
